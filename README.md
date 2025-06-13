@@ -117,11 +117,6 @@ docker run -d \
 docker-compose -f docker-compose.hub.yml up -d
 ```
 
-**Available tags:**
-
-- `nitatemic/chatloggerjs:latest` - Latest version
-- `nitatemic/steam-chatlogger:1.1.0` - Specific version
-
 ### Option 2: Build from source
 
 A Docker version is also available for building from source. See `README.Docker.md` for more information.
@@ -130,3 +125,7 @@ For quick Docker setup:
 
 1. Edit the `.env` file with your Steam credentials
 2. Run `docker-compose up -d`
+
+## Notes importantes pour Portainer
+
+Si vous utilisez Portainer et rencontrez des erreurs de permissions (`EACCES: permission denied`), utilisez la version **1.2.0** ou plus récente qui corrige ce problème en utilisant l'utilisateur root dans le conteneur.

@@ -63,7 +63,7 @@ const envConfig = getEnvConfig();
 let config = {
   logDirectory: envConfig.logDirectory || './logs',
   fileFormat: '{SteamID64} - {Nickname}.txt',
-  messageFormat: '[{date} {Time}] {BothNames}: {Message}',
+  messageFormat: '[{Date} {Time}] {BothNames}: {Message}',
   invalidCharReplacement: '_',
   seperationString: '──────────{Date}──────────',
   bothNameFormat: '{Name} ({Nickname})',
