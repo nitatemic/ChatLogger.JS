@@ -1,6 +1,32 @@
 # Docker ChatLogger.JS
 
-## Configuration and quick start
+## Quick Start with Docker Hub
+
+The easiest way to get started is using the pre-built image from Docker Hub:
+
+```bash
+# Pull and run the latest image
+docker pull nitatemic/chatloggerjs:latest
+
+# Create environment file
+cat > .env << EOF
+STEAM_USERNAME=your_steam_username
+STEAM_PASSWORD=your_steam_password
+STEAM_GUARD_TOKEN=123456
+EOF
+
+# Use the Docker Hub compose file
+docker-compose -f docker-compose.hub.yml up -d
+```
+
+**Available on Docker Hub:**
+
+- Repository: [nitatemic/chatloggerjs](https://hub.docker.com/r/nitatemic/chatloggerjs)
+- Tags: `latest`, `1.1.0`
+
+## Build from Source
+
+If you prefer to build the image yourself:
 
 ### 1. Prepare environment variables
 

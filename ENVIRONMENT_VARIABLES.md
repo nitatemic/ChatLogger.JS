@@ -21,7 +21,7 @@ This document describes the available environment variables to control ChatLogge
 - **Type**: String (6 digits)
 - **Required**: No (only if Steam Guard is enabled)
 - **Example**: `export STEAM_GUARD_TOKEN="123456"`
-- **Note**: This token changes regularly, use Steam authenticator or code received by email
+- **Note**: This token changes regularly, use Steam authenticator
 
 ### `LOG_DIRECTORY`
 - **Description**: Directory where to save chat logs

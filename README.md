@@ -95,8 +95,38 @@ It's possible to accidentally start multiple instances, so make sure your instan
 
 ## Docker
 
-A Docker version is also available. See `README.Docker.md` for more information.
+### Option 1: Using Docker Hub (Recommended)
+
+You can use the pre-built image from Docker Hub:
+
+```bash
+# Pull the latest image
+docker pull nitatemic/chatloggerjs:latest
+
+# Run with basic configuration
+docker run -d \
+  --name steam-chatlogger \
+  -e STEAM_USERNAME=your_username \
+  -e STEAM_PASSWORD=your_password \
+  -v ./data:/app/logdata \
+  -v ./logs:/app/logdata/logs \
+  nitatemic/chatloggerjs:latest
+
+# Or use docker-compose with the Docker Hub image
+# Use docker-compose.hub.yml which already uses the Docker Hub image
+docker-compose -f docker-compose.hub.yml up -d
+```
+
+**Available tags:**
+
+- `nitatemic/chatloggerjs:latest` - Latest version
+- `nitatemic/steam-chatlogger:1.1.0` - Specific version
+
+### Option 2: Build from source
+
+A Docker version is also available for building from source. See `README.Docker.md` for more information.
 
 For quick Docker setup:
+
 1. Edit the `.env` file with your Steam credentials
 2. Run `docker-compose up -d`
