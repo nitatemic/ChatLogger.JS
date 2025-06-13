@@ -1,4 +1,3 @@
-
 const fs = require('fs');
 const moment = require('moment');
 const SteamUser = require('steam-user');
@@ -15,14 +14,23 @@ try {
 }
 
 const client = new SteamUser({
-  machineIdType: SteamUser.EMachineIDType.PersistentRandom,
+  machineIdType: 'PersistentRandom',
   protocol: SteamUser.EConnectionProtocol.WebSocket,
 });
 let steamUserName;
 let appPath = '.';
+
+// Lecture des variables d'environnement
+const envConfig = {
+  username: process.env.STEAM_USERNAME,
+  password: process.env.STEAM_PASSWORD,
+  logDirectory: process.env.LOG_DIRECTORY,
+  saveLoginData: process.env.SAVE_LOGIN_DATA ? process.env.SAVE_LOGIN_DATA.toLowerCase() === 'true' : null
+};
+
 // Default config.
 let config = {
-  logDirectory: './logs',
+  logDirectory: envConfig.logDirectory || './logs',
   fileFormat: '{SteamID64} - {Nickname}.txt',
   messageFormat: '[{Time}] {BothNames}: {Message}',
   invalidCharReplacement: '_',
@@ -30,7 +38,7 @@ let config = {
   bothNameFormat: '{Name} ({Nickname})',
   dateFormat: 'L',
   timeFormat: 'LT',
-  saveLoginData: false,
+  saveLoginData: envConfig.saveLoginData !== null ? envConfig.saveLoginData : false,
 };
 
 let logData = {};
@@ -130,7 +138,17 @@ function runApp() {
   logDataFile = path.join(logdataDir, 'logData.json');
   configFile = path.join(logdataDir, 'config.json');
   getConfig(() => {
-    loginToSteam({});
+    // Si les variables d'environnement sont définies, utiliser le mode non-interactif
+    if (envConfig.username && envConfig.password) {
+      console.log('Mode non-interactif détecté via les variables d\'environnement.');
+      loginToSteam({
+        username: envConfig.username,
+        password: envConfig.password,
+        rememberPassword: config.saveLoginData
+      });
+    } else {
+      loginToSteam({});
+    }
   });
   getLogData();
 }
@@ -213,6 +231,18 @@ async function loginToSteam(loginData) {
       }
     }
   }
+  
+  // Vérifier si on est en mode non-interactif avec les variables d'environnement
+  if (envConfig.username && envConfig.password) {
+    console.log('Utilisation des informations de connexion depuis les variables d\'environnement.');
+    loginToSteam({
+      username: envConfig.username,
+      password: envConfig.password,
+      rememberPassword: config.saveLoginData
+    });
+    return;
+  }
+  
   loginPrompt();
 }
 
