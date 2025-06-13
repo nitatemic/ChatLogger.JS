@@ -1,7 +1,7 @@
 {
   "name": "steam-chatlogger",
   "productName": "ChatLoggerJS",
-  "version": "1.2.1",
+  "version": "1.2.3",
   "description": "A node.js based steam chat logger.",
   "main": "src/chatlogger.js",
   "scripts": {

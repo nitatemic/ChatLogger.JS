@@ -68,7 +68,7 @@ let config = {
   seperationString: '──────────{Date}──────────',
   bothNameFormat: '{Name} ({Nickname})',
   dateFormat: 'DD/MM/YYYY',
-  timeFormat: 'HH:MM',
+  timeFormat: 'HH:mm',
   // Si on utilise les variables d'environnement (mode non-interactif), sauvegarder par défaut
   saveLoginData: envConfig.saveLoginData !== null ? envConfig.saveLoginData : 
                  (envConfig.username && envConfig.password ? true : false),
@@ -414,7 +414,7 @@ function userChatEx(friendSteam, sender, message) {
   let appendLine = '';
   if (!isSame) {
     appendLine = config.seperationString + endOfLine;
-    appendLine = appendLine.replace('{Date}', moment(message.server_timestamp).format(config.dateFormat));
+    appendLine = appendLine.replace(new RegExp('\\{Date\\}', 'g'), moment(message.server_timestamp).format(config.dateFormat));
   }
   fs.appendFile(path.join(config.logDirectory, fileName), appendLine + formattedMessage + endOfLine, (err) => {
     if (err) throw err;
@@ -518,7 +518,9 @@ function formatDynamicString(formatString, timeMoment, message, user) {
   };
   Object.keys(formatArgs).forEach((key) => {
     if (formattedMessage.includes(key)) {
-      formattedMessage = formattedMessage.replace(key, formatArgs[key]);
+      // Échapper les caractères spéciaux pour la regex et remplacer toutes les occurrences
+      const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      formattedMessage = formattedMessage.replace(new RegExp(escapedKey, 'g'), formatArgs[key]);
     }
   });
   return formattedMessage;
