@@ -1,79 +1,98 @@
 # ChatLogger.JS
-A Node.js base Steam chat logger which will store logs of all chats under your Steam account.
 
-This script has an Electron body which allows you to run the script like an application, either through unpacking it yourself or through a provided installer.
+Un logger de chat Steam basé sur Node.js qui stockera les logs de tous les chats sous votre compte Steam.
 
-This application will create a taskbar tray icon which can be used to exit the application, open the configured log folder, and open the settings window.
+Cette application fonctionne entièrement en ligne de commande et créera automatiquement les dossiers de logs configurés.
 
-# Downloading/Installing
+## Installation et démarrage
 
-This script uses electron-forge to generate an installer and a release for windows.  
-You do not need to run the installer as the entire application is within a zip archive.  
-The installer will also create a shortcut on your desktop for easier use.
+### Méthode 1 : Installation des dépendances et démarrage
 
-
-# Running without electron app (no taskbar or config windows)
-
-It's possible to run just the chatlogger script without making the taskbar button and windows.  
-The `chatlogger.bat` script will execute the chatlogger.js script and keep the command prompt open for aslong as it's alive.  
-You can make a shortcut to this script instead of having the electron app open.
-
-
-# Config/Data Files
-The main app uses [node-steam-user](https://github.com/DoctorMcKay/node-steam-user) in order to run an instance of a login to listen to sending and recieving messages and save them to configuarable files. When the app is first executed it will create a config file for editing, if you're using the gui you shouldn't have to worry about this file.
-
-The time formatting options use's moment.js to format the timestamp. [Moment's display format documentation.](https://momentjs.com/docs/#/displaying/)
-
-`logindata.json` will store your username and login key (not your password) in order to automatically log into steam after launching the application again.
-
-`logData.json` will store information and the where abouts of the chat logs. It will store the profile link, name, and last recieved timestamp of past chat messages. This is needed since the log file names are not absolute and can change, this file allows the app to still append to the correct log file.
-
-`config.json` contains the saved settings of the chat logger, feel free to edit this however you should restart 
-
-
-# Compiling
-First step is [installing Node.JS](https://nodejs.org/en/).
-
-Once that is installed go ahead and download the source or checkout the source via git.
-
-Open command prompt within the project's directory and execute these commands:
 ```shell
 npm install
-npm run package
+npm start
 ```
-If you want to compile and create the installer use `npm run make`.
 
-**node-keytar is an optional dependency that requires python2.7 installed**, compiling with `npm install --no-optional` will compile the script just fine however it will save your username/loginkey in a plaintext file (this can be disabled in the config).  
-To compile fully without having to worry about where to find/install python2.7 use this command in a prompt run as an admin:  
-`npm install --global --production windows-build-tools`  
+### Méthode 2 : Installation production et démarrage
 
-
-# Server Script
-This app allows you to run the node.js directly on a linux server. (For Windows just follow the install guide.)
-
-First step would be installing node.js on your linux server. There should be plenty of tutorials out there.  
-[(Installing Node.js via package manager)](https://nodejs.org/en/download/package-manager/)
-
-Second step would be downloading and uploading this script (download the source).
-
-Then execute these commands:
 ```shell
 npm run chatlogger-install
 npm run chatlogger
 ```
-NOTICE! if you do a npm start for the electron app this will make the chatlogger no longer work until you delete your node_modules and reinstall for the stadalone script.
 
-The script will start, create the config file under `./logdata/config.json` and ask you for login details.
+## Fonctionnement
 
-If edit the config be aware that the application will require a restart before using the changes.
+L'application vous demandera vos identifiants Steam au premier démarrage :
 
-To continuously run this application I recommend using [forever](https://www.npmjs.com/package/forever) to run the script as a background application.
-Example of my setup:
+- Nom d'utilisateur Steam
+- Mot de passe Steam
+- Code Steam Guard (si activé)
+- Si vous souhaitez mémoriser les informations de connexion
+
+Une fois connecté, l'application loggera automatiquement tous les messages de chat dans des fichiers séparés pour chaque contact.
+
+## Configuration
+
+Au premier démarrage, l'application créera un fichier `config.json` dans le dossier `./logdata/`. Vous pouvez modifier ce fichier pour personnaliser :
+
+- Répertoire de logs
+- Format des noms de fichiers
+- Format des messages
+- Format des dates et heures
+- Et plus encore...
+
+Un exemple de configuration est disponible dans `config.example.json`.
+
+## Structure des fichiers
+
+- `src/chatlogger.js` : Application principale
+- `config.example.json` : Exemple de configuration
+- `logdata/` : Dossier créé automatiquement contenant la configuration et les données de connexion
+- `logs/` : Dossier par défaut pour les logs de chat (configurable)
+
+## Config/Fichiers de données
+
+L'application utilise [node-steam-user](https://github.com/DoctorMcKay/node-steam-user) pour se connecter à Steam et écouter les messages entrants et sortants.
+
+Les options de formatage du temps utilisent moment.js. [Documentation du formatage de moment.js](https://momentjs.com/docs/#/displaying/)
+
+- `logindata.json` stockera votre nom d'utilisateur et clé de connexion (pas votre mot de passe) pour se reconnecter automatiquement
+- `logData.json` stockera les informations sur les logs de chat (profils, noms, derniers messages)
+- `config.json` contient les paramètres sauvegardés du chat logger
+
+## Utilisation sur serveur
+
+Cette application peut être exécutée directement sur un serveur Linux.
+
+Première étape : installer node.js sur votre serveur Linux. [Guide d'installation Node.js](https://nodejs.org/en/download/package-manager/)
+
+Deuxième étape : télécharger et installer cette application
+
+Puis exécutez ces commandes :
+
+```shell
+npm run chatlogger-install
+npm run chatlogger
+```
+
+Le script va démarrer, créer le fichier de configuration sous `./logdata/config.json` et vous demander vos identifiants de connexion.
+
+Si vous éditez la configuration, l'application nécessite un redémarrage avant d'utiliser les changements.
+
+Pour faire tourner cette application en continu, je recommande d'utiliser [forever](https://www.npmjs.com/package/forever) pour exécuter le script en arrière-plan.
+
+Exemple de configuration :
+
 ```shell
 npm install forever -g
-# Make sure you start the script in the right directory for simplicity.
+# Assurez-vous de démarrer le script dans le bon répertoire
 cd ChatLogger.JS
 
 forever start -a -o out.log -e err.log src/chatlogger.js
 ```
-It is possible to accidently start multiple instances so make sure your instance is stopped completely before starting another.
+
+Il est possible de démarrer accidentellement plusieurs instances, donc assurez-vous que votre instance est complètement arrêtée avant d'en démarrer une autre.
+
+## Docker
+
+Une version Docker est également disponible. Consultez `README.Docker.md` pour plus d'informations.
