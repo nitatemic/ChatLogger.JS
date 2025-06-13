@@ -4,3 +4,10 @@ logdata
 .idea/
 .vscode/
 .DS_Store
+
+# Fichiers de configuration sensibles
+.env
+
+# Dossiers de données Docker
+data/
+logs/

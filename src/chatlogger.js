@@ -20,25 +20,58 @@ const client = new SteamUser({
 let steamUserName;
 let appPath = '.';
 
-// Lecture des variables d'environnement
-const envConfig = {
-  username: process.env.STEAM_USERNAME,
-  password: process.env.STEAM_PASSWORD,
-  logDirectory: process.env.LOG_DIRECTORY,
-  saveLoginData: process.env.SAVE_LOGIN_DATA ? process.env.SAVE_LOGIN_DATA.toLowerCase() === 'true' : null
-};
+// Lecture des variables d'environnement et arguments CLI
+function getEnvConfig() {
+  // Parse command line arguments first
+  const args = process.argv.slice(2);
+  let cliUsername = null;
+  let cliPassword = null;
+  let cliGuardCode = null;
+  
+  for (let i = 0; i < args.length; i++) {
+    switch (args[i]) {
+      case '--username':
+      case '-u':
+        cliUsername = args[i + 1];
+        i++; // Skip next argument as it's the value
+        break;
+      case '--password':
+      case '-p':
+        cliPassword = args[i + 1];
+        i++; // Skip next argument as it's the value
+        break;
+      case '--guard-code':
+      case '-g':
+        cliGuardCode = args[i + 1];
+        i++; // Skip next argument as it's the value
+        break;
+    }
+  }
+  
+  return {
+    username: cliUsername || process.env.STEAM_USERNAME,
+    password: cliPassword || process.env.STEAM_PASSWORD,
+    steamGuardCode: cliGuardCode || process.env.STEAM_GUARD_TOKEN,
+    logDirectory: process.env.LOG_DIRECTORY,
+    saveLoginData: process.env.SAVE_LOGIN_DATA ? process.env.SAVE_LOGIN_DATA.toLowerCase() === 'true' : null
+  };
+}
+
+const envConfig = getEnvConfig();
 
 // Default config.
 let config = {
   logDirectory: envConfig.logDirectory || './logs',
   fileFormat: '{SteamID64} - {Nickname}.txt',
-  messageFormat: '[{Time}] {BothNames}: {Message}',
+  messageFormat: '[{date} {Time}] {BothNames}: {Message}',
   invalidCharReplacement: '_',
   seperationString: '──────────{Date}──────────',
   bothNameFormat: '{Name} ({Nickname})',
-  dateFormat: 'L',
-  timeFormat: 'LT',
-  saveLoginData: envConfig.saveLoginData !== null ? envConfig.saveLoginData : false,
+  dateFormat: 'DD/MM/YYYY',
+  timeFormat: 'HH:MM',
+  // Si on utilise les variables d'environnement (mode non-interactif), sauvegarder par défaut
+  saveLoginData: envConfig.saveLoginData !== null ? envConfig.saveLoginData : 
+                 (envConfig.username && envConfig.password ? true : false),
 };
 
 let logData = {};
@@ -87,11 +120,19 @@ let loginPrompt = function () {
   });
 };
 let sgPrompt = function (callback) {
+  // Vérifier si un token Steam Guard est fourni via variable d'environnement
+  if (envConfig.steamGuardCode) {
+    console.log('Utilisation du code Steam Guard depuis la variable d\'environnement.');
+    callback(envConfig.steamGuardCode);
+    return;
+  }
+  
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
   });
   rl.question('SteamGuard Code: ', (value) => {
+    rl.close();
     callback(value);
   });
 };
@@ -176,6 +217,7 @@ async function loginToSteam(loginData) {
         client.logOn({
           accountName: loginData.username,
           password: loginData.password,
+          twoFactorCode: envConfig.steamGuardCode, // Inclure le code Steam Guard si disponible
           rememberPassword,
           logonID: 350,
         });
@@ -542,7 +584,34 @@ function createDirIfNotExists(directory) {
 }
 
 if (require.main === module) {
-    // chatlogger.js was ran directly from the cmd line.
+  // chatlogger.js was ran directly from the cmd line.
   console.log('Running ChatLogger.js in standalone mode.');
+  
+  // Check for help argument
+  const args = process.argv.slice(2);
+  if (args.includes('--help') || args.includes('-h')) {
+    console.log(`
+Usage: node src/chatlogger.js [options]
+
+Options:
+  -u, --username <username>    Steam username
+  -p, --password <password>    Steam password
+  -g, --guard-code <code>      Steam Guard code (6 digits)
+  -h, --help                   Show this help message
+
+Environment variables (alternative to CLI args):
+  STEAM_USERNAME               Steam username
+  STEAM_PASSWORD               Steam password
+  STEAM_GUARD_TOKEN            Steam Guard code
+  LOG_DIRECTORY                Log directory path
+  SAVE_LOGIN_DATA              Save login data (true/false)
+
+Examples:
+  node src/chatlogger.js -u myuser -p mypass -g 123456
+  STEAM_USERNAME=myuser STEAM_PASSWORD=mypass node src/chatlogger.js
+    `);
+    process.exit(0);
+  }
+  
   runApp();
 }

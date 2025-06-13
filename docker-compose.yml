@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  chatlogger:
+    build: .
+    container_name: steam-chatlogger
+    restart: unless-stopped
+    
+    # Variables d'environnement Steam
+    environment:
+      - STEAM_USERNAME=${STEAM_USERNAME}
+      - STEAM_PASSWORD=${STEAM_PASSWORD}
+      - STEAM_GUARD_TOKEN=${STEAM_GUARD_TOKEN:-}
+      - LOG_DIRECTORY=/app/logdata/logs
+      - SAVE_LOGIN_DATA=true
+      - NODE_ENV=production
+    
+    # Commande avec paramètres CLI
+    command: ["node", "src/chatlogger.js", "--username", "${STEAM_USERNAME}", "--password", "${STEAM_PASSWORD}", "--guard-code", "${STEAM_GUARD_TOKEN}"]
+    
+    # Montage de dossiers locaux pour persister les données
+    volumes:
+      - ./data:/app/logdata
+      - ./logs:/app/logdata/logs
+    
+    # Optionnel: limites de ressources
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.5'
+        reservations:
+          memory: 128M
+          cpus: '0.1'
+    
+    # Politique de redémarrage
+    healthcheck:
+      test: ["CMD", "node", "-e", "process.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s

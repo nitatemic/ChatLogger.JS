@@ -1,0 +1,17 @@
+# Fichiers à ignorer dans le contexte Docker
+node_modules
+npm-debug.log
+.git
+.gitignore
+README.md
+README.Docker.md
+.env
+.env.example
+.DS_Store
+logdata
+out
+.idea/
+.vscode/
+
+# Fichiers de configuration locaux
+docker-compose.override.yml

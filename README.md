@@ -1,98 +1,102 @@
 # ChatLogger.JS
 
-Un logger de chat Steam basé sur Node.js qui stockera les logs de tous les chats sous votre compte Steam.
+A Node.js-based Steam chat logger that will store logs of all chats under your Steam account.
 
-Cette application fonctionne entièrement en ligne de commande et créera automatiquement les dossiers de logs configurés.
+This application runs entirely in command line and will automatically create the configured log folders.
 
-## Installation et démarrage
+## Installation and startup
 
-### Méthode 1 : Installation des dépendances et démarrage
+### Method 1: Install dependencies and start
 
 ```shell
 npm install
 npm start
 ```
 
-### Méthode 2 : Installation production et démarrage
+### Method 2: Production install and start
 
 ```shell
 npm run chatlogger-install
 npm run chatlogger
 ```
 
-## Fonctionnement
+## How it works
 
-L'application vous demandera vos identifiants Steam au premier démarrage :
+The application will ask for your Steam credentials on first startup:
 
-- Nom d'utilisateur Steam
-- Mot de passe Steam
-- Code Steam Guard (si activé)
-- Si vous souhaitez mémoriser les informations de connexion
+- Steam username
+- Steam password
+- Steam Guard code (if enabled)
+- Whether you want to remember login information
 
-Une fois connecté, l'application loggera automatiquement tous les messages de chat dans des fichiers séparés pour chaque contact.
+Once logged in, the application will automatically log all chat messages in separate files for each contact.
 
 ## Configuration
 
-Au premier démarrage, l'application créera un fichier `config.json` dans le dossier `./logdata/`. Vous pouvez modifier ce fichier pour personnaliser :
+On first startup, the application will create a `config.json` file in the `./logdata/` folder. You can modify this file to customize:
 
-- Répertoire de logs
-- Format des noms de fichiers
-- Format des messages
-- Format des dates et heures
-- Et plus encore...
+- Log directory
+- File name format
+- Message format
+- Date and time format
+- And more...
 
-Un exemple de configuration est disponible dans `config.example.json`.
+An example configuration is available in `config.example.json`.
 
-## Structure des fichiers
+## File structure
 
-- `src/chatlogger.js` : Application principale
-- `config.example.json` : Exemple de configuration
-- `logdata/` : Dossier créé automatiquement contenant la configuration et les données de connexion
-- `logs/` : Dossier par défaut pour les logs de chat (configurable)
+- `src/chatlogger.js`: Main application
+- `config.example.json`: Configuration example
+- `logdata/`: Automatically created folder containing configuration and login data
+- `logs/`: Default folder for chat logs (configurable)
 
-## Config/Fichiers de données
+## Config/Data files
 
-L'application utilise [node-steam-user](https://github.com/DoctorMcKay/node-steam-user) pour se connecter à Steam et écouter les messages entrants et sortants.
+The application uses [node-steam-user](https://github.com/DoctorMcKay/node-steam-user) to connect to Steam and listen for incoming and outgoing messages.
 
-Les options de formatage du temps utilisent moment.js. [Documentation du formatage de moment.js](https://momentjs.com/docs/#/displaying/)
+Time formatting options use moment.js. [moment.js formatting documentation](https://momentjs.com/docs/#/displaying/)
 
-- `logindata.json` stockera votre nom d'utilisateur et clé de connexion (pas votre mot de passe) pour se reconnecter automatiquement
-- `logData.json` stockera les informations sur les logs de chat (profils, noms, derniers messages)
-- `config.json` contient les paramètres sauvegardés du chat logger
+- `logindata.json` will store your username and login key (not your password) for automatic reconnection
+- `logData.json` will store information about chat logs (profiles, names, last messages)
+- `config.json` contains saved chat logger settings
 
-## Utilisation sur serveur
+## Server usage
 
-Cette application peut être exécutée directement sur un serveur Linux.
+This application can be run directly on a Linux server.
 
-Première étape : installer node.js sur votre serveur Linux. [Guide d'installation Node.js](https://nodejs.org/en/download/package-manager/)
+First step: install node.js on your Linux server. [Node.js installation guide](https://nodejs.org/en/download/package-manager/)
 
-Deuxième étape : télécharger et installer cette application
+Second step: download and install this application
 
-Puis exécutez ces commandes :
+Then run these commands:
 
 ```shell
 npm run chatlogger-install
 npm run chatlogger
 ```
 
-Le script va démarrer, créer le fichier de configuration sous `./logdata/config.json` et vous demander vos identifiants de connexion.
+The script will start, create the configuration file under `./logdata/config.json` and ask for your login credentials.
 
-Si vous éditez la configuration, l'application nécessite un redémarrage avant d'utiliser les changements.
+If you edit the configuration, the application requires a restart before using the changes.
 
-Pour faire tourner cette application en continu, je recommande d'utiliser [forever](https://www.npmjs.com/package/forever) pour exécuter le script en arrière-plan.
+To run this application continuously, I recommend using [forever](https://www.npmjs.com/package/forever) to run the script in the background.
 
-Exemple de configuration :
+Configuration example:
 
 ```shell
 npm install forever -g
-# Assurez-vous de démarrer le script dans le bon répertoire
+# Make sure to start the script in the correct directory
 cd ChatLogger.JS
 
 forever start -a -o out.log -e err.log src/chatlogger.js
 ```
 
-Il est possible de démarrer accidentellement plusieurs instances, donc assurez-vous que votre instance est complètement arrêtée avant d'en démarrer une autre.
+It's possible to accidentally start multiple instances, so make sure your instance is completely stopped before starting another one.
 
 ## Docker
 
-Une version Docker est également disponible. Consultez `README.Docker.md` pour plus d'informations.
+A Docker version is also available. See `README.Docker.md` for more information.
+
+For quick Docker setup:
+1. Edit the `.env` file with your Steam credentials
+2. Run `docker-compose up -d`
